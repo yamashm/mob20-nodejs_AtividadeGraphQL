@@ -11,13 +11,24 @@ module.exports = {
               preco:preco,
               datacadastro, datacadastro
             }
-            admin.database()
-            .ref("produtos/" + id)
-            .update(atualizacao);
+            let existe = false;
             return admin.database()
             .ref("produtos/" + id)
-            .once("value")
-            .then(rs=>rs.toJSON());
+            .once("value", snapshot =>{
+                if(snapshot.exists()){
+                    existe = true;
+                } 
+            }).then(function(){
+                if(existe) {
+                  admin.database()
+                  .ref("produtos/" + id)
+                  .update(atualizacao);
+                  return admin.database()
+                  .ref("produtos/" + id)
+                  .once("value")
+                  .then(rs=>rs.toJSON());
+                }
+            });
           }
     }
 }

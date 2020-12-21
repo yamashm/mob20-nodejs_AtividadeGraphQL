@@ -11,11 +11,29 @@ module.exports = {
                 preco:preco,
                 datacadastro, datacadastro
             }
+            let existe = false;
             return admin.database()
+            .ref("produtos/" + id)
+            .once("value", snapshot =>{
+                if(snapshot.exists()){
+                    existe = true;
+                } 
+            }).then(function(){
+                if(!existe) {
+                  admin.database()
+                  .ref("produtos/" + id)
+                  .update(novo);
+                  return admin.database()
+                  .ref("produtos/" + id)
+                  .once("value")
+                  .then(rs=>rs.toJSON());
+                }
+            });
+            /*return admin.database()
             .ref("produtos")
             .push(novo)
             .once("value")
-            .then(rs=>rs.toJSON());
+            .then(rs=>rs.toJSON());*/
         }
     }
 }
